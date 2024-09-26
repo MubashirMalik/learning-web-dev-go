@@ -4,7 +4,7 @@
 ### Module Path
 - **What?** globally unique name or identifier for project
 - **Why Globally Unique?** to avoid potential conflicts with other people's projects or the standard library
-- **How?** base module paths on a URL we own or if it has to be used and downloaded from some site like GitHub base it on download path (not necessary but good practice) e.g., `github.com/mubashirmalik/pyro`
+- **How to avoid?** base module paths on a URL we own or if it has to be used and downloaded by others from some site like GitHub base it on download path (not necessary but good practice) e.g., `github.com/mubashirmalik/pyro`
 
 ### Turn Project Directory into a module
 
@@ -17,19 +17,20 @@ go: creating new go.mod: module github.com/mubashirmalik/pyro
 
 ### Why set project as module?
 1. Makes it easier to manage third-party dependencies (imagine go.mod as package.json)
-2. Avoid supply-chain attacks
-3. Ensure reproducible builds of application in future
+2. Avoid supply-chain attacks <mark>How?</mark>
+3. Ensure reproducible builds of application in future <mark>How?</mark>
 
-### Handlers
+### Three absolute essentials for Web App?
+#### 1. Handlers
 - Equate to Controller of MVC or Controller/Service of Nest
 - Responsible for executing application logic (Service of Nest) and writing HTTP response headers & bodies (Controller of Nest)
 
-### Servemux
+#### 2. Servemux
 - Router
 - Stores mapping between URL routing patterns & corresponding handlers
 - **Example:** What logic/code to execute when `/any-url` is hit.
 
-### Server
+#### 3. Server
 - No third-party library needed like Apache, Caddy or Nginx
 
 ### Example of Web Server
@@ -66,7 +67,7 @@ Serve mux treats route pattern `/` like a catch-all. So, currently all requests 
 - If we have more than one network interface (which I don't know how & when?), then we need to specify host as well.
 
 ### Go Run
-Compiles, creates an executable binary in /tmp directory, and then runs this binary in one step.
+Compiles, creates an executable binary in `/tmp` directory, and then runs this binary in one step.
 ```c++
     go run . // . treated as current working directory
     go run main.go // space-separated list of go files
