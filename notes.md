@@ -77,8 +77,7 @@ Compiles, creates an executable binary in `/tmp` directory, and then runs this b
 ### Routing Patterns
 
 #### Exact Match
-- When a route pattern doesn't end in trailing slash e.g., `/snippet/create`
-- When the request URL matches exactly, only then the corresponding handler will be called
+- When a route pattern **doesn't end** in trailing slash e.g., `/snippet/create`, then only when the request URL matches exactly, corresponding handler will be called.
 
 #### Subtree Path Pattern
 
