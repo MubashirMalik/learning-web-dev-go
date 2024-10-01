@@ -120,3 +120,69 @@ mux.HandleFunc("/baz", bazHandler)
 - **Don't use! Why?**
     - **Security**: As it it global, any Go code can register a handler (even any third-party library)
     - **Clarity & maintainability**: Difficult to locate routes as many people working on code can register from any file.
+
+### Wildcard route patterns
+- Query Params of Nest
+- denoted by an wildcard identifier inside `{}`
+
+```go
+mux.HandleFunc("/products/{category}/item/{itemID}", exampleHandler)
+
+// /products/hammocks/item/sku123456789
+// /products/seasonal-plants/item/pdt-1234-wxyz
+// /products/experimental_foods/item/quantum%20bananas
+
+// Patterns like "/products/c_{category}", /date/{y}-{m}-{d} or /{slug}.html are not valid
+```
+
+- Use `r.PathValue()` in handler to retrieve values.
+- `r.PathValue()` method always returns a string value.
+
+```go
+    // Extract the value of the id wildcard from the request using r.PathValue()
+    // and try to convert it to an integer using the strconv.Atoi() function. If
+    // it can't be converted to an integer, or the value is less than 1, we
+    // return a 404 page not found response.
+    id, err := strconv.Atoi(r.PathValue("id"))
+    if err != nil || id < 1 {
+        http.NotFound(w, r)
+        return
+    }
+```
+- stick a `{$}` at the end — like `/user/{id}/{$}` to avoid subtree path pattens with wildcards
+### Precedence and conflicts
+- Most specific pattern wins!
+- Consider two route patterns: `/post/{id}` & `/post/edit`, what will happen on request with the path `/post/edit`?
+- `/post/edit` will only be invoked when exactly `/post/edit` is requested.
+- Avoid these at all costs as there is an edge case where go panics!  
+
+#### Edge case?
+
+For example, the patterns `/post/new/{id}` and `/post/{author}/latest` overlap because they both match the request path `/post/new/latest`, but it’s not clear which one should take precedence. In this scenario, Go’s servemux considers the patterns to conflict, and will panic at runtime when initializing the routes.
+
+
+### Remainder Wildcards
+
+- I don't think so I will be needing this. If I even want to use it; will update notes first.
+
+### Method-based routing
+```go
+mux.HandleFunc("GET /{$}", home)
+```
+- Method is case sensitive (uppercase).
+- Should be followed by spaces (at least 1) or tab
+- `GET` will also me matched for `HEAD` requests.
+- Go’s servemux automatically sends a **405 Method Not Allowed** response for us, including an Allow header which lists the HTTP methods that are supported for the request URL.
+
+- Most specific pattern wins applies here too. For example: `/article/{id}` will match incoming HTTP requests with any method. In contrast, a route like `POST /article/{id}` will only match requests which have the method POST.
+
+### Why third-party routers?
+- The wildcard and method-based routing functionality that we’ve been using in the past two chapters is relatively new to Go — it only became part of the standard library in Go 1.2
+
+- Sending custom 404 Not Found and 405 Method Not Allowed responses to the user (although there is an open proposal regarding this).
+- Using regular expressions in your route patterns or wildcards.
+- Matching multiple HTTP methods in a single route declaration.
+- Automatic support for OPTIONS requests.
+- Routing requests to handlers based on unusual things, like HTTP request headers.
+
+- Recommended by Author: **chi**, **flow**, **gorilla/mux** and **httprouter**

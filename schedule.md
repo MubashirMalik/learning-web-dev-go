@@ -6,7 +6,7 @@
 | Chapter  | Comments | Day Started | Day Completed | Due Date
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | 1. Introduction  | done  |
-| 2. Foundations  | Started | 27 Sep, 2024
+| 2. Foundations  | Completed till Chapter 2.5 | 27 Sep, 2024
 | 3. Configuring and error handling  |    |
 | 4. Database-driven responses  |    |
 | 5. Dynamic HTML templates  |    |
