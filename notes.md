@@ -73,3 +73,50 @@ Compiles, creates an executable binary in `/tmp` directory, and then runs this b
     go run main.go // space-separated list of go files
     go run github.com/mubashirmalik/pyro
 ```
+
+### Routing Patterns
+
+#### Exact Match
+- When a route pattern doesn't end in trailing slash e.g., `/snippet/create`
+- When the request URL matches exactly, only then the corresponding handler will be called
+
+#### Subtree Path Pattern
+
+- When a route pattern ends with a trailing slash — like `/` or `/static/`
+- These are matched whenever the start of a request URL path matches the subtree path
+- For understanding consider above like `/**` or `/static/**`
+- This is why `/` acts as catch-all
+
+#### Restricting subtree paths
+- To avoid `/` as a catch-all, use `{$}`
+- For example: `/{$}` will only match requests where the URL path is exactly `/`
+- It is only permitted to be used at the end. Else, Panic!
+
+#### Automatic Sanitization
+- `/foo/bar/..//baz` they will automatically be sent a 301 Permanent Redirect to `/foo/baz` instead.
+- **Why?**  if the request path contains any `.` or `..` elements or repeated slashes, the user will automatically be redirected to an equivalent clean URL
+
+- If a subtree path is registered e.g., `/foo/` then any request received for `/foo` will be automatically redirected (301) to `/foo/`. Opposite is not true :) 
+
+#### Host name matching
+- Useful for redirects
+- Useful when app is working as a backend for multiple different sites.. Maybe a load balancer?
+
+```go
+mux := http.NewServeMux()
+
+// any host-specific patterns will be checked first
+mux.HandleFunc("foo.example.org/", fooHandler)
+mux.HandleFunc("bar.example.org/", barHandler)
+
+// Only when there isn’t a host-specific match found will the non-host specific patterns also be checked
+mux.HandleFunc("/baz", bazHandler)
+```
+
+
+### Default Serve Mux
+- Pass `nil` as the second argument to `ListenAndServe`
+- `http.DefaultServeMux` is a **global** variable in standard library
+- **Don't use! Why?**
+    - **Security**: As it it global, any Go code can register a handler (even any third-party library)
+    - **Clarity & maintainability**: Difficult to locate routes as many people working on code can register from any file.
