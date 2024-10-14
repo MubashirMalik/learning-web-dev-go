@@ -20,6 +20,23 @@ go: creating new go.mod: module github.com/mubashirmalik/pyro
 2. Avoid supply-chain attacks <mark>How?</mark>
 3. Ensure reproducible builds of application in future <mark>How?</mark>
 
+### Project Structure
+- Project Folder e.g., `pyro-go`
+    - **cmd** application-specific code for the executable applications in the project
+        - **web**
+    - **internal** contain non-application-specific code used in the project e.g., reusable code like validation helpers and the SQL database models for the project.
+    - **ui** contain the user-interface assets used by the web application
+        - **html** contain html templates
+        - **assets** contain static files (like CSS and images).
+
+#### Benefits?
+- Separation between Go and non-Go assets.
+- Scales.. if we want to add another executable app e.g., CLI to automate some tasks we can create **cmd/cli** and it will be able to use existing code in **internal**
+- internal: 
+    - name carries significance
+    - code inside internal can only be used in parent of internal i.e., our web app.
+    - no third-party library can use code from here.
+
 ### Three absolute essentials for Web App?
 #### 1. Handlers
 - Equate to Controller of MVC or Controller/Service of Nest
@@ -185,3 +202,47 @@ mux.HandleFunc("GET /{$}", home)
 - Routing requests to handlers based on unusual things, like HTTP request headers.
 
 - Recommended by Author: **chi**, **flow**, **gorilla/mux** and **httprouter**
+
+### Sending Customize Responses (HTTP Status Codes)
+
+```go
+func snippetCreatePost(w http.ResponseWriter, r *http.Request) {
+    // Use the w.WriteHeader() method to send a 201 status code.
+    w.WriteHeader(201)
+
+    // Then w.Write() method to write the response body as normal.
+    w.Write([]byte("Save a new snippet..."))
+}
+```
+
+#### w.WriteHeader
+- It can only be called once per response.
+- Status code can't be changed once written. Trying to do so will log a warning.
+- If it isn't called then `w.Write` automatically sends status code `200`.
+- It should be called before call to `w.Write`
+- Use constant status codes rather than writing number ourselves e.g., 201 -> `http.StatusCreated`
+
+#### Adding additional header
+- We can add additional headers by changes response header map.
+- Example: ` w.Header().Add("Server", "Go")`
+- We have to make sure that response header map contains all the headers we want before the call to `w.WriteHeader()` or `w.Write()`.
+- There are other useful methods like `Get`, `Del`, `Set` and `Values` that can be used to manipulate response header map
+
+### io.Write Interface 
+```go
+// Instead of this...
+w.Write([]byte("Hello world"))
+
+// We can do this...
+io.WriteString(w, "Hello world")
+fmt.Fprint(w, "Hello world")
+```
+### http.DetectContentType()
+- Go automatically tries to set `Content-Type` header by sniffing the response body.
+- If can't detect, falls back to `Content-Type: application/octet-stream` instead.
+- It can't distinguish between plain text and JSON.
+- Sets header to `Content-Type: text/plain; charset=utf-8` for responses of JSON by default
+- To prevent we can set manually: `w.Header().Set("Content-Type", "application/json")`
+
+### Header canonicalization
+<mark>Didn't understand</mark>
