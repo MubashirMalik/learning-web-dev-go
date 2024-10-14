@@ -24,10 +24,13 @@ go: creating new go.mod: module github.com/mubashirmalik/pyro
 - Project Folder e.g., `pyro-go`
     - **cmd** application-specific code for the executable applications in the project
         - **web**
+            - handlers.go
+            - main.go
     - **internal** contain non-application-specific code used in the project e.g., reusable code like validation helpers and the SQL database models for the project.
     - **ui** contain the user-interface assets used by the web application
         - **html** contain html templates
-        - **assets** contain static files (like CSS and images).
+        - **static** contain static files (like CSS and images).
+    - **go.mod**
 
 #### Benefits?
 - Separation between Go and non-Go assets.
@@ -246,3 +249,47 @@ fmt.Fprint(w, "Hello world")
 
 ### Header canonicalization
 <mark>Didn't understand</mark>
+
+### HTML Templating
+
+```go
+func home(w http.ResponseWriter, r *http.Request) {
+    w.Header().Add("Server", "Go")
+
+    // absolute path or relative to cwd
+    ts, err := template.ParseFiles("./ui/html/pages/home.tmpl")
+    if err != nil {
+        log.Print(err.Error())
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+        return
+    }
+
+    err = ts.Execute(w, nil)
+    if err != nil {
+        log.Print(err.Error())
+        // It is a lightweight helper function sends a plain text error message 
+        http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+    }
+}
+```
+
+```html
+{{define "base"}}
+<!doctype html>
+<html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <title>{{template "title" .}} - Snippetbox</title>
+    </head>
+    <body>
+        <header>
+            <h1><a href='/'>Snippetbox</a></h1>
+        </header>
+        <main>
+            {{template "main" .}}
+        </main>
+        <footer>Powered by <a href='https://golang.org/'>Go</a></footer>
+    </body>
+</html>
+{{end}}
+```
