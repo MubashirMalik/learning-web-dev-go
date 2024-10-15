@@ -264,37 +264,37 @@ fmt.Fprint(w, "Hello world")
         - Otherwise, can't predict what gets rendered and can't  protect against XSS
 - Examples:
 ```golang
-    ts.ExecuteTemplate(w, "base", 42) // . gives 42
+ts.ExecuteTemplate(w, "base", 42) // . gives 42
 
-    data := Data{
-		ID:       1,
-		Username: "john",
-		Socials: Socials{
-			Facebook: "fb.com/john",
-		},
-	}
+data := Data{
+    ID:       1,
+    Username: "john",
+    Socials: Socials{
+        Facebook: "fb.com/john",
+    },
+}
 
-    ts.ExecuteTemplate(w, "base", data)
-    // {{ .Id }} gives 1
-    // {{ .Username }} gives john
-    // {{ .Socials.Facebook }} gives fb.com/john
+ts.ExecuteTemplate(w, "base", data)
+// {{ .Id }} gives 1
+// {{ .Username }} gives john
+// {{ .Socials.Facebook }} gives fb.com/john
 
-    // XSS Protection
-    <span>{{"<script>alert('xss attack')</script>"}}</span>
-    // Output in DOM
-    <span>&lt;script&gt;alert(&#39;xss attack&#39;)&lt;/script&gt;</span>
+// XSS Protection
+<span>{{"<script>alert('xss attack')</script>"}}</span>
+// Output in DOM
+<span>&lt;script&gt;alert(&#39;xss attack&#39;)&lt;/script&gt;</span>
 
-    // Accessing array in template
-    {{ range . }}
-        <li>{{ . }}</li>
-    {{ end }}
+// Accessing array in template
+{{ range . }}
+    <li>{{ . }}</li>
+{{ end }}
 
-    // Enhanced array access
-    {{ range $index, $element := . }}
-        <li>{{ $index }} - {{ $element }}</li>
-    {{ end }}
+// Enhanced array access
+{{ range $index, $element := . }}
+    <li>{{ $index }} - {{ $element }}</li>
+{{ end }}
 
-    // Exactly same way we can access map
+// Exactly same way we can access map
 ```
 
 #### Nested Templates
