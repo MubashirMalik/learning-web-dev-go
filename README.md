@@ -250,7 +250,68 @@ fmt.Fprint(w, "Hello world")
 ### Header canonicalization
 <mark>Didn't understand</mark>
 
-### HTML Templating
+### Templates
+
+- **Execute** methods take a third parameter of `any` type
+- Any data passed here can be accessed by `.` in template
+- Go’s html/template package allows us to pass in one — and only one — item of dynamic data when rendering a template.
+- Type-safe way is to wrap data in a `struct`
+- Use `html/template` rather than `html/text`
+    - XSS protection: automatically escapes any data that is yielded between `{{ }}` tags.
+    - Smart enough to make escaping context-dependent
+        - Doesn't escape content inside JS tags :D
+    - always strips out any HTML comments we include in your templates including <mark>conditional comments</mark>
+        - Otherwise, can't predict what gets rendered and can't  protect against XSS
+- Examples:
+```golang
+    ts.ExecuteTemplate(w, "base", 42) // . gives 42
+
+    data := Data{
+		ID:       1,
+		Username: "john",
+		Socials: Socials{
+			Facebook: "fb.com/john",
+		},
+	}
+
+    ts.ExecuteTemplate(w, "base", data)
+    // {{ .Id }} gives 1
+    // {{ .Username }} gives john
+    // {{ .Socials.Facebook }} gives fb.com/john
+
+    // XSS Protection
+    <span>{{"<script>alert('xss attack')</script>"}}</span>
+    // Output in DOM
+    <span>&lt;script&gt;alert(&#39;xss attack&#39;)&lt;/script&gt;</span>
+
+    // Accessing array in template
+    {{ range . }}
+        <li>{{ . }}</li>
+    {{ end }}
+
+    // Enhanced array access
+    {{ range $index, $element := . }}
+        <li>{{ $index }} - {{ $element }}</li>
+    {{ end }}
+
+    // Exactly same way we can access map
+```
+
+#### Nested Templates
+- `.` needs to be explicitly passed when invoking one template from another like `{{template "main" .}}`
+
+#### Calling methods
+- We can also call methods inside `{{}}` tags
+- Methods should return a single value or single value and an error
+- We can pass our own defined functions too using interface
+
+```html
+<!-- Note we don't call method using () -->
+<span>{{.Snippet.Created.AddDate 0 6 0}}</span>
+```
+
+- <mark>There is a lot of things that I can make notes of in 5.2 but should I?</mark>
+- <mark>Todd Mcleod used Must & Init methods to parse templates only once. Need to research on it</mark>
 
 ```go
 func home(w http.ResponseWriter, r *http.Request) {
