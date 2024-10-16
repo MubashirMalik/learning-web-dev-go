@@ -333,7 +333,7 @@ func home(w http.ResponseWriter, r *http.Request) {
     }
 }
 ```
-
+<mark>Maybe remove code that was copied</mark>
 ```html
 {{define "base"}}
 <!doctype html>
